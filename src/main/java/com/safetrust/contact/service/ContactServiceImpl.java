@@ -9,15 +9,17 @@ import com.safetrust.contact.exception.GlobalAppException;
 import com.safetrust.contact.repository.ContactRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-public class ContactServiceImpl implements ContactService{
+public class ContactServiceImpl implements ContactService {
     final ContactRepository repository;
+
     public ContactServiceImpl(ContactRepository repository) {
         this.repository = repository;
     }
@@ -30,14 +32,17 @@ public class ContactServiceImpl implements ContactService{
     }
 
     @Override
-    public Page<Contact> getList() {
-        return repository.findAllContacts(PageRequest.of(0,99));
+    public Page<Contact> getList(Integer page, Integer size) {
+        Pageable pageable = Objects.isNull(page) || Objects.isNull(size)
+                ? Pageable.unpaged()
+                : PageRequest.of(page, size);
+        return repository.findAll(pageable);
     }
 
     @Override
     public ContactDto createNew(CreateContactDto dto) {
-        Optional<Contact> contactOpt = repository.findByTelephone(dto.getTelephone());
-        if (contactOpt.isPresent()) throw new GlobalAppException(ResponseCode.EXISTED_CONTACT);
+        if (repository.existsContactByEmailOrTelephoneIs(dto.getEmail(), dto.getTelephone()))
+            throw new GlobalAppException(ResponseCode.EXISTED_CONTACT);
         Contact entity = dto.toEntity();
         repository.save(entity);
         return new ContactDto(entity);

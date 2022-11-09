@@ -5,14 +5,13 @@ import com.safetrust.contact.dto.ResponseDto;
 import com.safetrust.contact.dto.contact.ContactDto;
 import com.safetrust.contact.dto.contact.CreateContactDto;
 import com.safetrust.contact.dto.contact.UpdateContactDto;
+import com.safetrust.contact.dto.paging.PagingDto;
 import com.safetrust.contact.entity.Contact;
 import com.safetrust.contact.service.ContactService;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/contact")
@@ -24,8 +23,9 @@ public class ContactController {
     }
 
     @GetMapping
-    public ResponseDto<Page<Contact>> list() {
-        return ResponseDto.ok(service.getList());
+    public PagingDto<Contact> list(@RequestParam(defaultValue = "0") Integer page,
+                                   @RequestParam(defaultValue = "10") Integer pageSize) {
+        return new PagingDto<>(ResponseCode.OK, service.getList(page, pageSize));
     }
 
     @PostMapping
