@@ -1,0 +1,16 @@
+version: '3.1'
+services:
+  db:
+    image: mysql
+    container_name: mysql-server
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_USER=tinhpt
+      - MYSQL_PASSWORD=123456
+      - MYSQL_DATABASE=contacts
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
